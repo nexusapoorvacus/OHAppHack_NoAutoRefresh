@@ -47,15 +47,16 @@
           if (peer != null)
           {
             document.getElementById('peername').value = peer;
-            alert("Good job" + peer);
-            $("#peername").load("{{ url_for('helpedbystudent', entry_id = entry.id) }}");
+            alert("Good job " + peer);
+            $("#peername").load("{{ url_for('helpedbystudent') }}");
           }
         }
       </script>
 
-      <form action="/helpedbystudent/{{ entry.id }}/" method="post" align="right">
+      <form action="/helpedbystudent" method="post" align="right">
         <p>
           <input hidden id="peername" type="text" name="peername"></input>
+          <input hidden id="entryid" type="text" name="entryid" value="{{ entry.id }}"></input>
         </p>
           <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
       </form>

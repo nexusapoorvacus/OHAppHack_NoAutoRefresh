@@ -99,12 +99,14 @@ def delete_student(entry_id):
 	flash('The student was deleted')
 	return redirect(url_for('show_entries'))
 
-@app.route('/helpedbystudent/<int:entry_id>/', methods=["POST"])
-def helpedbystudent(entry_id):
+@app.route('/helpedbystudent', methods=["POST"])
+def helpedbystudent():
 	if not session.get('logged_in'):
 		abort(401)
 	peer_name = request.form["peername"]
-	print(peer_name)
+	entry_id = request.form["entryid"]
+	print("Peer Name:", peer_name)
+	print("Entry ID:", entry_id)
 	g.db.execute('delete from entries where id=' + str(entry_id))
 	g.db.commit()
 	flash('The student was deleted')
