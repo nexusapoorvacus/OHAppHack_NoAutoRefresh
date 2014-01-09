@@ -5,7 +5,7 @@ from flask import Flask, request, session, g, redirect, url_for, \
 from contextlib import closing
 
 # configuration - can be put in a different config files
-DATABASE = '/tmp/ohapp.db'
+DATABASE = 'ohapp.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
@@ -62,13 +62,13 @@ def show_entries():
 		entries = sort(entries)
 	return render_template('show_entries.html', entries=entries)
 
-@app.route('/entries')
-def entries():
-	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
-	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
-	if mode == "Category":
-		entries = sort(entries)
-	return render_template('entries.html', entries=entries)
+# @app.route('/entries')
+# def entries():
+# 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
+# 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
+# 	if mode == "Category":
+# 		entries = sort(entries)
+# 	return render_template('entries.html', entries=entries)
 
 #This view lets the user add new entries if they are logged in. This only responds to POST requests. If everything worked out well we will flash() an information message to the next request and redirect back to the show_entries page.
 @app.route('/add', methods=['POST'])

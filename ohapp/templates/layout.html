@@ -1,19 +1,6 @@
 <!doctype html>
 <title>Office Hours App</title>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<!-- This load ajax jquery from googleapi online -->
-<script>window.jQuery || document.write('<script src="{{
-   url_for('static', filename='jquery-1.10.2.js') }}">\x3C/script>') </script>
-<!-- This load ajax jquery from the static folder when we put the downloaded jquery as a backup; \x3C is a substitute for symbol "<" -->
-<script type="text/javascript">
-  $(document).ready(function(){     //When the document is ready
-    setInterval(function(){         //do the following with the set Interval
-     $('.entries').load("{{url_for('entries')}}");//partially reload entries class
-     }, 1000);                      //Time interval = 1000 ms
-  });
-</script>
-
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
   <h1>Welcome to Office Hours</h1>
