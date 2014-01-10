@@ -4,7 +4,11 @@
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
       <dl>
         <dt>Name:
-        <dd><input type=text size=30 name=Name>
+          {% if TAview %}
+              <dd><input type=text size=30 name=Name value="{{ USERNAME }}" readonly>
+          {% else %}
+              <dd><input type=text size=30 name=Name value="{{ STUDENT_USERNAME }}" readonly>
+            {% endif %}
         <dt>Description:
         <dd><textarea name=Description rows=5 cols=40></textarea>
         <dt>Category:
@@ -19,7 +23,7 @@
         <dd><input type=submit value="Help me!">
       </dl>
     </form>
-
+  {% if TAview %}
   <form action="{{ url_for('general_delete') }}">
     <input type="submit" value="Delete">
   </form>
@@ -29,14 +33,14 @@
   <form action="{{ url_for('changemode', m = "Category") }}">
     <input type="submit" value="Sort By Category">
   </form>
-
+  {% endif %}
    <ul class=entries>
   {% for entry in entries %}
     <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
 
     {% if session.logged_in %}
-<form action="{{ url_for('delete_student', entry_id = entry.id) }}">
+      <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
         <input type="submit" value="Delete">
       </form>
 
@@ -53,7 +57,7 @@
         }
       </script>
 
-      <form action="/helpedbystudent" method="post" align="right">
+      <form action="{{ url_for('helpedbystudent') }}" method="post" align="right">
         <p>
           <input hidden id="peername" type="text" name="peername"></input>
           <input hidden id="entryid" type="text" name="entryid" value="{{ entry.id }}"></input>

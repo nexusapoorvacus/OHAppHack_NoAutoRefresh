@@ -11,7 +11,11 @@ SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
 
+STUDENT_USERNAME = 'username'
+STUDENT_PASSWORD = 'password'
+
 mode = 0
+TAview = True
 
 # create our little application :)
 app = Flask(__name__)
@@ -60,15 +64,7 @@ def show_entries():
 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
 	if mode == "Category":
 		entries = sort(entries)
-	return render_template('show_entries.html', entries=entries)
-
-# @app.route('/entries')
-# def entries():
-# 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
-# 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
-# 	if mode == "Category":
-# 		entries = sort(entries)
-# 	return render_template('entries.html', entries=entries)
+	return render_template('show_entries.html', entries=entries, TAview=TAview, STUDENT_USERNAME=STUDENT_USERNAME, USERNAME=USERNAME)
 
 #This view lets the user add new entries if they are logged in. This only responds to POST requests. If everything worked out well we will flash() an information message to the next request and redirect back to the show_entries page.
 @app.route('/add', methods=['POST'])
@@ -90,14 +86,31 @@ def general_delete():
 	flash('The student was deleted')
 	return redirect(url_for('show_entries'))
 
-@app.route('/delete/<int:entry_id>/')
+@app.route('/delete/<int:entry_id>')
 def delete_student(entry_id):
 	if not session.get('logged_in'):
 		abort(401)
-	g.db.execute('delete from entries where id=' + str(entry_id))
-	g.db.commit()
-	flash('The student was deleted')
-	return redirect(url_for('show_entries'))
+
+	if not TAview:
+		cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
+		entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
+		studentname = ""
+		for i in range(len(entries)):
+			if entries[i]["id"] == entry_id:
+				studentname = entries[i]["Name"]
+		if studentname == STUDENT_USERNAME:
+			g.db.execute('delete from entries where id=' + str(entry_id))
+			g.db.commit()
+			flash('The student was deleted')
+			return redirect(url_for('show_entries'))
+		else:
+			flash('You do not have permission to delete ' + studentname)
+			return redirect(url_for('show_entries'))
+	else:
+		g.db.execute('delete from entries where id=' + str(entry_id))
+		g.db.commit()
+		flash('The student was deleted')
+		return redirect(url_for('show_entries'))
 
 @app.route('/helpedbystudent', methods=["POST"])
 def helpedbystudent():
@@ -115,15 +128,22 @@ def helpedbystudent():
 #These functions are used to sign the user in and out. Login checks the username and password against the ones from the configuration and sets the logged_in key in the session. If the user logged in successfully, that key is set to True, and the user is redirected back to the show_entries page. In addition, a message is flashed that informs the user that he or she was logged in successfully. If an error occurred, the template is notified about that, and the user is asked again.
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+	global TAview, STUDENT_USERNAME, STUDENT_PASSWORD
 	error = None
 	if request.method == 'POST':
-		if request.form['username'] != app.config['USERNAME']:
-			error = 'Invalid username'
-		elif request.form['password'] != app.config['PASSWORD']:
-			error = 'Invalid password'
+		if request.form['username'] == app.config['USERNAME'] and request.form['password'] == app.config['PASSWORD']:
+			session['logged_in'] = True
+			TAview = True
+			STUDENT_USERNAME = 'no username'
+			STUDENT_PASSWORD = 'no password'
+			flash('You were logged in as a TA')
+			return redirect(url_for('show_entries'))
 		else:
 			session['logged_in'] = True
-			flash('You were logged in')
+			TAview = False
+			STUDENT_USERNAME = request.form['username']
+			STUDENT_PASSWORD = request.form['password']
+			flash('You were logged in as a student')
 			return redirect(url_for('show_entries'))
 	return render_template('login.html', error=error)
 
