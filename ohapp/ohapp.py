@@ -71,8 +71,12 @@ def show_entries():
 def add_entry():
 	if not session.get('logged_in'):
 		abort(401)
-	g.db.execute('insert into entries (Name, Description, Category) values (?, ?, ?)',
-				 [request.form['Name'], request.form['Description'], request.form['Category']])
+	if not TAview:
+		g.db.execute('insert into entries (Name, Description, Category, Username, Password) values (?, ?, ?, ?, ?)',
+				 [request.form['Name'], request.form['Description'], request.form['Category'], STUDENT_USERNAME, STUDENT_PASSWORD])
+	else:
+		g.db.execute('insert into entries (Name, Description, Category, Username, Password) values (?, ?, ?, ?, ?)',
+				 [request.form['Name'], request.form['Description'], request.form['Category'], USERNAME, PASSWORD])
 	g.db.commit()
 	flash('New entry was successfully posted')
 	return redirect(url_for('show_entries'))
@@ -92,19 +96,21 @@ def delete_student(entry_id):
 		abort(401)
 
 	if not TAview:
-		cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
-		entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
-		studentname = ""
+		cur = g.db.execute('select Name, Description, Category, id, Username, Password from entries order by id desc')
+		entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Username=row[4], Password=row[5]) for row in cur.fetchall()][::-1]
+		studentusername = ""
+		studentpassword = ""
 		for i in range(len(entries)):
 			if entries[i]["id"] == entry_id:
-				studentname = entries[i]["Name"]
-		if studentname == STUDENT_USERNAME:
+				studentusername = entries[i]["Username"]
+				studentpassword = entries[i]["Password"]
+		if studentusername == STUDENT_USERNAME and studentpassword == STUDENT_PASSWORD:
 			g.db.execute('delete from entries where id=' + str(entry_id))
 			g.db.commit()
 			flash('The student was deleted')
 			return redirect(url_for('show_entries'))
 		else:
-			flash('You do not have permission to delete ' + studentname)
+			flash('You do not have permission to delete ' + studentusername)
 			return redirect(url_for('show_entries'))
 	else:
 		g.db.execute('delete from entries where id=' + str(entry_id))
