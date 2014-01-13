@@ -36,7 +36,9 @@
   {% endif %}
    <ul class=entries>
   {% for entry in entries %}
-    <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
+    <li id="{{ entry.id }}">
+      <div>
+        <h2>{{ entry.Name }} id={{ entry.id }}</h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
 
     {% if session.logged_in %}
@@ -64,10 +66,11 @@
         </p>
           <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
       </form>
-    {% endif %}
-
-  {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+      {% endif %}
+    </div>
+  </li>
+    {% else %}
+    <li><em>Unbelievable.  No entries here so far</em></li>
   {% endfor %}
   </ul>
 
@@ -80,8 +83,8 @@
     </form>
 
   {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
-  {% endfor %}
+    <li><em>Unbelievable.  No entries here so far</em></li>
+  {% endfor %}-->
   </ul>
 
   {% endif %}

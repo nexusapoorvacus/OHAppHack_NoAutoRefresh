@@ -1,6 +1,32 @@
 <!doctype html>
 <title>Office Hours App</title>
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<!--these two js enables the sortable function(the fancy dragging around)-->
+<script>window.jQuery || document.write('<script src="{{
+   url_for('static', filename='jquery-1.10.2.js') }}">\x3C/script>') </script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.entries').sortable({
+      axis: 'y',
+      stop: function(event, ui){
+        var data = $(this).sortable('toArray');
+        console.log(data);
+        $.ajax({
+          url: "{{ url_for('reorder_entry') }}",
+          contentType: 'application/json;charset=UTF-8',
+          data: JSON.stringify(data, null, '\t'),
+          type: "POST",
+          success: function(){console.log("success");}
+        });
+      }
+    });
+  });
+</script>
+
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
   <h1>Welcome to Office Hours</h1>

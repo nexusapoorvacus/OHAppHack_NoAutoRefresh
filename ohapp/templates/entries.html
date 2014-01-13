@@ -1,40 +1,10 @@
 <!-- The reason why I create this new view is because .load() function in layout.html will load the whole webpage in the entries section if I use the old, complete view of show_entries.html -->
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="{{
-   url_for('static', filename='jquery-1.10.2.js') }}">\x3C/script>') </script>
-
- <ul class=entries>
-  {% for entry in entries %}
-    <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
-    <div align="right">{{ entry.Category|safe }}</div>
-
-    {% if session.logged_in %}
-      <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
-        <input type="submit" value="Delete">
-      </form>
-
-      <script type=text/javascript>
-        function popupPeerHelp()
-        {
-          var peer = prompt("Enter the name of the peer who helped you:");
-          if (peer != null)
-          {
-            document.getElementById('peername').value = peer;
-            $("#peername").load("{{ url_for('helpedbystudent', entry_id = entry.id) }}");
-          }
-        }
-      </script>
-
-      <form action="/helpedbystudent/{{ entry.id }}/" method="post" align="right">
-        <p>
-          <input hidden id="peername" type="text" name="peername"></input>
-        </p>
-          <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
-      </form>
-	{% endif %}
-
-  {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
-  {% endfor %}
-  </ul>
+{% for entry in entries %}
+   <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}  
+   <div align="right">{{ entry.Category}}</div>
+   {% if session.logged_in %}
+           <a href="{{ url_for('delete_student', entry_id=entry.id) }}">Delete</a>
+   {% endif %}
+{% else %}
+  <li><em>Unbelievable.  No entries here so far</em>
+{% endfor %}
