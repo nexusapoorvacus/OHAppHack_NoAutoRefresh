@@ -38,7 +38,7 @@
   {% for entry in entries %}
     <li id="{{ entry.id }}">
       <div>
-        <h2>{{ entry.Name }} id={{ entry.id }}</h2>{{ entry.Description|safe }}
+        <h2>{{ entry.Name }} id={{ entry.id }} pos={{ entry.Position }}</h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
 
     {% if session.logged_in %}
@@ -46,26 +46,17 @@
         <input type="submit" value="Delete">
       </form>
 
-      <script type=text/javascript>
-        function popupPeerHelp()
-        {
-          var peer = prompt("Enter the name of the peer who helped you:");
-          if (peer != null)
-          {
-            document.getElementById('peername').value = peer;
-            alert("Good job " + peer);
-            $("#peername").load("{{ url_for('helpedbystudent') }}");
-          }
-        }
-      </script>
-
+      {% if STUDENT_USERNAME == entry.Username and STUDENT_PASSWORD == entry.Password %}
       <form action="{{ url_for('helpedbystudent') }}" method="post" align="right">
         <p>
-          <input hidden id="peername" type="text" name="peername"></input>
+          <input id="peername" type="text" name="peername"></input>
           <input hidden id="entryid" type="text" name="entryid" value="{{ entry.id }}"></input>
         </p>
           <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
       </form>
+      {% endif %}
+
+
       {% endif %}
     </div>
   </li>
@@ -84,7 +75,7 @@
 
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em></li>
-  {% endfor %}-->
+  {% endfor %}
   </ul>
 
   {% endif %}

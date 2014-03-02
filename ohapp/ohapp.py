@@ -64,16 +64,16 @@ def sort(entries):
 @app.route('/')
 #@fresh_login_required
 def show_entries():
-	cur = g.db.execute('select Name, Description, Category, id, Position from entries order by Position')
-	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Position=row[4]) for row in cur.fetchall()]
+	cur = g.db.execute('select Name, Description, Category, id, Position, Username, Password from entries order by Position')
+	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Position=row[4], Username=row[5], Password=row[6]) for row in cur.fetchall()]
 	if mode == "Category":
 		entries = sort(entries)
-	return render_template('show_entries.html', entries=entries, TAview=TAview, STUDENT_USERNAME=STUDENT_USERNAME, USERNAME=USERNAME)
+	return render_template('show_entries.html', entries=entries, TAview=TAview, STUDENT_USERNAME=STUDENT_USERNAME, USERNAME=USERNAME, STUDENT_PASSWORD=STUDENT_PASSWORD)
 
 
 @app.route('/entries')
 def entries():
- 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
+	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
 	entries = [dict(Name = row[0], Description = row[1], Category = row[2], id = row[3]) for row in cur.fetchall()][::-1]
 	if m == "Category":
 		entries = sort(entries)
@@ -123,9 +123,10 @@ def delete_student(entry_id):
 				studentusername = entries[i]["Username"]
 				studentpassword = entries[i]["Password"]
 		if studentusername == STUDENT_USERNAME and studentpassword == STUDENT_PASSWORD:
-			row = g.db.execute('select id, Position from entries where id=?', [entry.id]).fetchall()[0]
+			row = g.db.execute('select id, Position from entries where id=?', [entry_id]).fetchall()[0]
 			entry = dict(id=row[0], Position=row[1])
 			g.db.execute('delete from entries where id=' + str(entry_id))
+			print(entry['Position'])
 			g.db.execute('update entries set Position=Position-1 where Position>?',[entry['Position']])
 			g.db.commit()
 			flash('The student was deleted')
@@ -134,7 +135,10 @@ def delete_student(entry_id):
 			flash('You do not have permission to delete ' + studentusername)
 			return redirect(url_for('show_entries'))
 	else:
+		row = g.db.execute('select id, Position from entries where id=?', [entry_id]).fetchall()[0]
+		entry = dict(id=row[0], Position=row[1])
 		g.db.execute('delete from entries where id=' + str(entry_id))
+		g.db.execute('update entries set Position=Position-1 where Position>?',[entry['Position']])
 		g.db.commit()
 		flash('The student was deleted')
 		return redirect(url_for('show_entries'))
@@ -147,10 +151,50 @@ def helpedbystudent():
 	entry_id = request.form["entryid"]
 	print("Peer Name:", peer_name)
 	print("Entry ID:", entry_id)
-	g.db.execute('delete from entries where id=' + str(entry_id))
-	g.db.commit()
-	flash('The student was deleted')
-	return redirect(url_for('show_entries'))
+
+	if not TAview:
+		cur = g.db.execute('select Name, Description, Category, id, Username, Password from entries order by id desc')
+		entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Username=row[4], Password=row[5]) for row in cur.fetchall()][::-1]
+		studentusername = ""
+		studentpassword = ""
+		for i in range(len(entries)):
+			if entries[i]["id"] == int(entry_id):
+				studentusername = entries[i]["Username"]
+				studentpassword = entries[i]["Password"]
+		if studentusername == STUDENT_USERNAME and studentpassword == STUDENT_PASSWORD:
+			row = g.db.execute('select id, Position from entries where id=?', [entry_id]).fetchall()[0]
+			entry = dict(id=row[0], Position=row[1])
+			g.db.execute('delete from entries where id=' + str(entry_id))
+			print(entry['Position'])
+			g.db.execute('update entries set Position=Position-1 where Position>?',[entry['Position']])
+			g.db.commit()
+			flash('The student was deleted')
+
+			row = g.db.execute('select id, Position from entries where id=?', [peer_name]).fetchall()[0]
+			peerid = row[0] #14
+			peerpos = row[1] #5
+			print(peerid, peerpos, peerpos-1)
+			studentabove = g.db.execute('select id, Position from entries where Position=?', [peerpos - 1]).fetchall()[0]
+			aboveid = studentabove[0]
+			abovepos = studentabove[1]
+			print(aboveid, abovepos)
+			if(peerpos != 1):
+				g.db.execute('update entries set position=? where id=?', [abovepos, peerid])
+				g.db.execute('update entries set position=? where id=?', [peerpos, aboveid])
+				g.db.commit()
+			return redirect(url_for('show_entries'))
+		#	return redirect(url_for('show_entries'))
+		else:
+			flash('You do not have permission to delete ' + studentusername)
+			return redirect(url_for('show_entries'))
+	else:
+		row = g.db.execute('select id, Position from entries where id=?', [entry_id]).fetchall()[0]
+		entry = dict(id=row[0], Position=row[1])
+		g.db.execute('delete from entries where id=' + str(entry_id))
+		g.db.execute('update entries set Position=Position-1 where Position>?',[entry['Position']])
+		g.db.commit()
+		flash('The student was deleted')
+		return redirect(url_for('show_entries'))
 
 @app.route('/reorder', methods=['POST'])
 def reorder_entry():
