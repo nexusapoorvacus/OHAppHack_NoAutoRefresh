@@ -33,6 +33,7 @@
   <form action="{{ url_for('changemode', m = "Category") }}">
     <input type="submit" value="Sort By Category">
   </form>
+
   {% endif %}
    <ul class=entries>
   {% for entry in entries %}
@@ -42,11 +43,20 @@
     <div align="right">{{ entry.Category|safe }}</div>
 
     {% if session.logged_in %}
+
+      {% if TAview %}
+        <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
+          <input type="submit" value="Delete">
+        </form>
+      {% endif %}
+
+
+      {% if STUDENT_USERNAME == entry.Username and STUDENT_PASSWORD == entry.Password %}
+
       <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
         <input type="submit" value="Delete">
       </form>
 
-      {% if STUDENT_USERNAME == entry.Username and STUDENT_PASSWORD == entry.Password %}
       <form action="{{ url_for('helpedbystudent') }}" method="post" align="right">
         <p>
           <input id="peername" type="text" name="peername"></input>
