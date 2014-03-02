@@ -6,5 +6,6 @@ create table entries (
   Category text not null,
   Username text not null,
   Password text not null,
-  Position integer not null
+  Position integer not null,
+  Time text not null
 );

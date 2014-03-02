@@ -1,5 +1,6 @@
 # all the imports
 import sqlite3
+import time, datetime
 from flask import Flask, request, session, g, redirect, url_for, \
 	 abort, render_template, flash, jsonify
 #from flask.ext.login import fresh_login_required, LoginManager
@@ -64,8 +65,8 @@ def sort(entries):
 @app.route('/')
 #@fresh_login_required
 def show_entries():
-	cur = g.db.execute('select Name, Description, Category, id, Position, Username, Password from entries order by Position')
-	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Position=row[4], Username=row[5], Password=row[6]) for row in cur.fetchall()]
+	cur = g.db.execute('select Name, Description, Category, id, Position, Username, Password, Time from entries order by Position')
+	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Position=row[4], Username=row[5], Password=row[6], Time=row[7]) for row in cur.fetchall()]
 	if mode == "Category":
 		entries = sort(entries)
 	return render_template('show_entries.html', entries=entries, TAview=TAview, STUDENT_USERNAME=STUDENT_USERNAME, USERNAME=USERNAME, STUDENT_PASSWORD=STUDENT_PASSWORD)
@@ -86,12 +87,16 @@ def add_entry():
 		abort(401)
 	countTable = g.db.execute('select count(*) from entries').fetchall()
 	Position = 1 + countTable[0][0]
+
+	ts = time.time()
+	st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
 	if not TAview:
-		g.db.execute('insert into entries (Name, Description, Category, Username, Password, Position) values (?, ?, ?, ?, ?, ?)',
-				 [request.form['Name'], request.form['Description'], request.form['Category'], STUDENT_USERNAME, STUDENT_PASSWORD, Position])
+		g.db.execute('insert into entries (Name, Description, Category, Username, Password, Position, Time) values (?, ?, ?, ?, ?, ?, ?)',
+				 [request.form['Name'], request.form['Description'], request.form['Category'], STUDENT_USERNAME, STUDENT_PASSWORD, Position, st])
 	else:
-		g.db.execute('insert into entries (Name, Description, Category, Username, Password, Position) values (?, ?, ?, ?, ?, ?)',
-				 [request.form['Name'], request.form['Description'], request.form['Category'], USERNAME, PASSWORD, Position])
+		g.db.execute('insert into entries (Name, Description, Category, Username, Password, Position, Time) values (?, ?, ?, ?, ?, ?, ?)',
+				 [request.form['Name'], request.form['Description'], request.form['Category'], USERNAME, PASSWORD, Position, st])
 
 	g.db.commit()
 	flash('New entry was successfully posted')

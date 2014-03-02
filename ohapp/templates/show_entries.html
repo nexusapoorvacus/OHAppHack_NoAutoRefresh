@@ -43,7 +43,7 @@
   {% for entry in entries %}
     <li id="{{ entry.id }}">
       <div>
-        <h2>{{ entry.Name }} id={{ entry.id }} pos={{ entry.Position }}</h2>{{ entry.Description|safe }}
+        <h2>{{ entry.Name }}<span class=gray> id={{ entry.id }} pos={{ entry.Position }} {{ entry.Time }}</span></h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
 
     {% if session.logged_in %}
