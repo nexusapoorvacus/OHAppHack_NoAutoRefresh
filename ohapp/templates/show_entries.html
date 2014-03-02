@@ -35,7 +35,11 @@
   </form>
 
   {% endif %}
+  {% if TAview %}
+   <ul class="TAreorder entries">
+  {% else %}
    <ul class=entries>
+  {% endif %}
   {% for entry in entries %}
     <li id="{{ entry.id }}">
       <div>
