@@ -160,6 +160,7 @@ def helpedbystudent():
 	if not TAview:
 		cur = g.db.execute('select Name, Description, Category, id, Username, Password from entries order by id desc')
 		entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3], Username=row[4], Password=row[5]) for row in cur.fetchall()][::-1]
+		
 		studentusername = ""
 		studentpassword = ""
 		for i in range(len(entries)):
@@ -167,6 +168,10 @@ def helpedbystudent():
 				studentusername = entries[i]["Username"]
 				studentpassword = entries[i]["Password"]
 		if studentusername == STUDENT_USERNAME and studentpassword == STUDENT_PASSWORD:
+			peers = g.db.execute('select id, Position from entries where id=?', [peer_name]).fetchall()
+			if len(peers) == 0:
+				flash("No peer with id=" + peer_name + " in queue.")
+				return redirect(url_for('show_entries'))
 			row = g.db.execute('select id, Position from entries where id=?', [entry_id]).fetchall()[0]
 			entry = dict(id=row[0], Position=row[1])
 			g.db.execute('delete from entries where id=' + str(entry_id))
@@ -174,16 +179,15 @@ def helpedbystudent():
 			g.db.execute('update entries set Position=Position-1 where Position>?',[entry['Position']])
 			g.db.commit()
 			flash('The student was deleted')
-
-			row = g.db.execute('select id, Position from entries where id=?', [peer_name]).fetchall()[0]
-			peerid = row[0] #14
-			peerpos = row[1] #5
+			peer = peers[0]
+			peerid = peer[0] #14
+			peerpos = peer[1] #5
 			print(peerid, peerpos, peerpos-1)
-			studentabove = g.db.execute('select id, Position from entries where Position=?', [peerpos - 1]).fetchall()[0]
-			aboveid = studentabove[0]
-			abovepos = studentabove[1]
-			print(aboveid, abovepos)
 			if(peerpos != 1):
+				studentabove = g.db.execute('select id, Position from entries where Position=?', [peerpos - 1]).fetchall()[0]
+				aboveid = studentabove[0]
+				abovepos = studentabove[1]
+				print(aboveid, abovepos)
 				g.db.execute('update entries set position=? where id=?', [abovepos, peerid])
 				g.db.execute('update entries set position=? where id=?', [peerpos, aboveid])
 				g.db.commit()
