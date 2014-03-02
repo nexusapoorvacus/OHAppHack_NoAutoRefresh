@@ -16,7 +16,7 @@ STUDENT_USERNAME = 'username'
 STUDENT_PASSWORD = 'password'
 
 mode = 0
-TAview = True
+TAview = False 
 
 #login_manager = LoginManager()
 
@@ -221,8 +221,8 @@ def login():
 		if request.form['username'] == app.config['USERNAME'] and request.form['password'] == app.config['PASSWORD']:
 			session['logged_in'] = True
 			TAview = True
-			STUDENT_USERNAME = 'no username'
-			STUDENT_PASSWORD = 'no password'
+			STUDENT_USERNAME = None 
+			STUDENT_PASSWORD = None 
 			flash('You were logged in as a TA')
 			return redirect(url_for('show_entries'))
 		else:
