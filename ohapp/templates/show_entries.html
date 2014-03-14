@@ -1,73 +1,97 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+    {% if not TAview %}
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry role="form"> 
       <dl>
         <dt>Name:
-          {% if TAview %}
-              <dd><input type=text size=30 name=Name value="{{ USERNAME }}" readonly>
-          {% else %}
-              <dd><input type=text size=30 name=Name value="{{ STUDENT_USERNAME }}" readonly>
-            {% endif %}
-        <dt>Description:
-        <dd><textarea name=Description rows=5 cols=40></textarea>
+<!--           {% if TAview %}
+              <dd><input class="form-control" type=text size=30 name=Name value="{{ USERNAME }}" readonly>
+          {% else %} -->
+              <dd><input class="form-control" type=text size=30 name=Name value="{{ STUDENT_USERNAME }}" readonly>
+<!--             {% endif %} -->
         <dt>Category:
         <dd>
-          <select name="Category">
+          <select name="Category" class="form-control" width=200px>
             <option value="Homework">Homework</option>
             <option value="Project">Project</option>
             <option value="Lab">Lab</option>
             <option value="Discussion">Discussion</option>
           </select>
+<dt>Description:
+        <dd><textarea class="form-control" name=Description rows=5 cols=40></textarea>
+        
+        
+        
 
-        <dd><input type=submit value="Help me!">
+        <!-- <dd><input type=submit value="Help me!">  -->
+        <button type="submit" class="btn btn-default">Help me!</button>
       </dl>
     </form>
+    {% endif %}
   {% if TAview %}
-  <form action="{{ url_for('general_delete') }}">
-    <input type="submit" value="Delete">
-  </form>
-  <form action="{{ url_for('changemode', m = "Time") }}">
-    <input type="submit" value="Sort By Time">
-  </form>
-  <form action="{{ url_for('changemode', m = "Category") }}">
-    <input type="submit" value="Sort By Category">
-  </form>
+  <br>
+  <span class="TA-buttons">
+    <div class="btn-group">
+      <a href="{{ url_for('general_delete') }}"><button class="btn btn-info">Delete one</button></a>
+      <a href="{{ url_for('changemode', m = "Time") }}"><button type="submit" class="btn btn-primary">Sort by Time</button></a>
+      <a href="{{ url_for('changemode', m = "Category") }}"><button type="submit" class="btn btn-primary">Sort by Category</button></a>
+</div>
+</span TA-buttons>
 
   {% endif %}
   {% if TAview %}
-   <ul class="TAreorder entries">
+   <ul class="TAreorder entries list-group">
   {% else %}
    <ul class=entries>
   {% endif %}
   {% for entry in entries %}
-    <li id="{{ entry.id }}">
+    <li id="{{ entry.id }}" class="list-group-item">
       <div>
-        <h2>{{ entry.Name }}<span class=gray> id={{ entry.id }} pos={{ entry.Position }} {{ entry.Time }}</span></h2>{{ entry.Description|safe }}
-    <div align="right">{{ entry.Category|safe }}</div>
+        <h2>
+          {{ entry.Name }}
+          <span class=gray> id={{ entry.id }} pos={{ entry.Position }} {{ entry.Time }} <span>
+    {% if session.logged_in %}
+
+      {% if TAview or STUDENT_USERNAME == entry.Username and STUDENT_PASSWORD == entry.Password%}
+
+          <a href="{{ url_for('delete_student', entry_id = entry.id) }}">
+          <span class="glyphicon glyphicon-remove" ></span></a>
+      {% endif %}
+    {% endif %}
+        </h2>
+
+        <div class="cat" align="left">{{ entry.Category|safe }}</div>
+        <p>{{ entry.Description|safe }}</p>
+
 
     {% if session.logged_in %}
 
-      {% if TAview %}
-        <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
-          <input type="submit" value="Delete">
-        </form>
+<!--       {% if TAview %}
+        <a href="{{ url_for('delete_student', entry_id = entry.id) }}">
+        <span class="glyphicon glyphicon-remove" ></span></a>
+        
       {% endif %}
-
+ -->
 
       {% if STUDENT_USERNAME == entry.Username and STUDENT_PASSWORD == entry.Password %}
-
-      <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
-        <input type="submit" value="Delete">
-      </form>
-
-      <form action="{{ url_for('helpedbystudent') }}" method="post" align="right">
-        <p>
-          <input id="peername" type="text" name="peername"></input>
+<!-- <a href="{{ url_for('delete_student', entry_id = entry.id) }}">
+        <span class="glyphicon glyphicon-remove"></span></a>
+ -->
+      <form action="{{ url_for('helpedbystudent') }}" method="post" role="form" >
+      <div class="col-lg-6">
+        <div class="input-group">
+          <input id="peername" type="text" name="peername" class="form-control" placeholder="peer id"></input>
           <input hidden id="entryid" type="text" name="entryid" value="{{ entry.id }}"></input>
-        </p>
-          <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
+          <span class="input-group-btn">
+          <button class="btn btn-default" type="submit" id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
+          </span>
+        </div><!-- /input-group -->
+      </div><!-- /.col-lg-6 -->
       </form>
+      
+
+
       {% endif %}
 
 

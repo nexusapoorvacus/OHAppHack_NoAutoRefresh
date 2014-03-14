@@ -2,9 +2,11 @@
 <title>Office Hours App</title>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<!--these two js enables the sortable function(the fancy dragging around)-->
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<!--these two js enables the sortable function(the fancy dragging around)-->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 <script>window.jQuery || document.write('<script src="{{
    url_for('static', filename='jquery-1.10.2.js') }}">\x3C/script>') </script>
 
@@ -32,9 +34,9 @@
   <h1>Welcome to Office Hours</h1>
   <div class=metanav>
   {% if not session.logged_in %}
-    <a href="{{ url_for('login') }}">log in</a>
+    <a href="{{ url_for('login') }}">log in <span class="glyphicon glyphicon-log-in"></span></a>
   {% else %}
-    <a href="{{ url_for('logout') }}">log out</a>
+    <a href="{{ url_for('logout') }}">log out <span class="glyphicon glyphicon-log-out"></span></a>
   {% endif %}
   </div>
   {% for message in get_flashed_messages() %}
@@ -42,3 +44,6 @@
   {% endfor %}
   {% block body %}{% endblock %}
 </div>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>

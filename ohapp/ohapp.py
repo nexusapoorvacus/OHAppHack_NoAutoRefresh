@@ -9,12 +9,13 @@ from contextlib import closing
 # configuration - can be put in a different config files
 DATABASE = '/tmp/ohapp.db'
 DEBUG = True
+
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
 
-STUDENT_USERNAME = 'username'
-STUDENT_PASSWORD = 'password'
+STUDENT_USERNAME = "username" 
+STUDENT_PASSWORD = "password" 
 
 mode = 0
 TAview = False 
